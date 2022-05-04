@@ -27,13 +27,8 @@ app = FastAPI()
 
 
 @app.get("/")
-async def home():
-    pass
-
-
-@app.get("/")
 async def root():
-    return {"message": "Welcome to my fitness app!"}
+    return {"message": "Welcome to my bookstore app!"}
 
 
 @app.get("/random-book")
