@@ -58,7 +58,7 @@ async def add_book(book: Book):
     with open(BOOKS_FILE, "w") as f:
         json.dump(BOOKS, f)
 
-    return {"book_id": book.uuid}
+    return {"book_id": book.book_id}
 
 
 @app.get("/get-book")
