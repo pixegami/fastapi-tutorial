@@ -12,20 +12,19 @@ our dependencies.
 
 ```bash
 sudo apt-get update
-sudo apt install python3-pip
-sudo apt install nginx  # We'll need this to connect the API to the internet.
+sudo apt install -y python3-pip nginx
 ```
 
-Add the FastAPI configuration to NGINX's folder.
+Clone the FastAPI server app (or create your `main.py` in Python).
 
 ```bash
-cd /etc/nginx/sites-enabled/
+git clone https://github.com/pixegami/fastapi-tutorial.git
 ```
 
-Create a file called `fastapi_nginx` (like the one in this repository).
+Add the FastAPI configuration to NGINX's folder. Create a file called `fastapi_nginx` (like the one in this repository).
 
 ```bash
-sudo vim fastapi_nginx
+sudo vim /etc/nginx/sites-enabled/fastapi_nginx
 ```
 
 And put this config into the file (replace the IP address with your EC2 instance's public IP):
@@ -50,6 +49,7 @@ sudo service nginx restart
 Start FastAPI.
 
 ```bash
+cd fastapi-tutorial
 python3 -m uvicorn main:app
 ```
 
@@ -59,9 +59,30 @@ Now when you visit your public IP of the instance, you should be able to access 
 
 # Deploying FastAPI to AWS Lambda
 
-We'll need to modify the API so that it has a Lambda handler. But after that, we can zip
-up the dependencies like this:
+We'll need to modify the API so that it has a Lambda handler. Use Mangum:
+
+```python
+from mangum import Mangum
+
+app = FastAPI()
+handler = Mangum(app)
+```
+
+We'll also need to install the dependencies into a local directory so we can zip it up.
 
 ```bash
 pip install -t lib -r requirements.txt
+```
+
+We now need to zip it up.
+
+```bash
+(cd lib; zip ../lambda_function.zip -r .)
+```
+
+Now add our FastAPI file and the JSON file.
+
+```bash
+zip lambda_function.zip -u main.py
+zip lambda_function.zip -u books.json
 ```

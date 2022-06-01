@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Harry Potter",
+    "genre": "fiction",
+    "price": 15.0,
+    "book_id": "e1b7e31916f64bd3badd98b9e34cc5c3"
+  },
+  {
+    "name": "The Great Gatsby",
+    "genre": "fiction",
+    "price": 15.0,
+    "book_id": "1759c5e1cf4b4e26b7dd41c7d2af7c33"
+  },
+  {
+    "name": "Frankenstein",
+    "genre": "fiction",
+    "price": 10.0,
+    "book_id": "f4b7f7f488334155831a9656ba373530"
+  },
+  {
+    "name": "Atomic Habits",
+    "genre": "non-fiction",
+    "price": 30.0,
+    "book_id": "6e72714965f94d0c9600277bb7e5ba99"
+  },
+  {
+    "name": "A Wild Sheep Chase",
+    "genre": "fiction",
+    "price": 15.0,
+    "book_id": "58bfb9a684724846bd7f69688c6f09c9"
+  }
+]
