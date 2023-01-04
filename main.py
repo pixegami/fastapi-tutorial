@@ -65,7 +65,7 @@ async def add_book(book: Book):
 @app.get("/get-book")
 async def get_book(book_id: str):
     for book in BOOKS:
-        if book.book_id == book_id:
+        if book['book_id'] == book_id:
             return book
 
     raise HTTPException(404, f"Book ID {book_id} not found in database.")
