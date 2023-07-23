@@ -69,25 +69,29 @@ def get_connection():
     return psycopg2.connect(get_database_url())
 
 
-# %% Create sample data
+# %% Create sample dat
 def create_sample_data():
     BOOKS_FILE = "books.json"
     BOOKS = []
-    
+
     if os.path.exists(BOOKS_FILE):
         with open(BOOKS_FILE, "r") as f:
             BOOKS = json.load(f)
-            
+
     connection = psycopg2.connect(get_database_url())
     with connection.cursor() as cursor:
-        cursor.execute('''CREATE TABLE IF NOT EXISTS books(book_id varchar(200) NOT NULL,
-                                                            genre varchar(100),
-                                                            name varchar(1000), 
-                                                            price float)''')         
-        for book in BOOKS:
-            print(book)
-            cursor.execute(f"""INSERT INTO books(book_id , genre, name, price) 
-                               VALUES ({book['book_id']}, {book['genre']}, {book['name']}, {book['price']})""")
+        query = 'CREATE TABLE IF NOT EXISTS books(book_id varchar(200) NOT NULL,genre varchar(100),name varchar(1000),price float)'
+        cursor.execute(query)
+        connection.commit()
+        print(query)
+
+    for book in BOOKS:
+        query = "INSERT INTO books (name, genre, price, book_id) VALUES (%s, %s, %s, %s)"
+        with connection.cursor() as cursor:
+                cursor.execute(query, (book['name'], book['genre'], book['price'], book['book_id']))
+                connection.commit()
+                print(query)
+
 
 create_sample_data()
 # %%
