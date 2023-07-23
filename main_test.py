@@ -11,9 +11,24 @@ import psycopg2
 import boto3
 import json
 
+# %% Login
+
+sts_client = boto3.client('sts')
+
+# Call the assume_role method of the STSConnection object and pass the role
+# ARN and a role session name.
+assumed_role_object=sts_client.assume_role(
+    RoleArn="arn:aws:iam::274166489389:role/Tech-Assessment",
+    RoleSessionName="Tech-Assessment"
+)
+
+credentials=assumed_role_object['Credentials']
 # %%
 def get_secret_name():
-    sm_get_secret = boto3.client("secretsmanager",region_name="eu-west-1")
+    sm_get_secret = boto3.client("secretsmanager",    
+        aws_access_key_id=credentials['AccessKeyId'],
+        aws_secret_access_key=credentials['SecretAccessKey'],
+        aws_session_token=credentials['SessionToken'])
     
     secrets = sm_get_secret.list_secrets(Filters=[
         {
@@ -30,7 +45,10 @@ def get_secret_name():
 
 
 def get_cluster_name():
-    rds = boto3.client("rds",region_name="eu-west-1")
+    rds = boto3.client("rds",    
+        aws_access_key_id=credentials['AccessKeyId'],
+        aws_secret_access_key=credentials['SecretAccessKey'],
+        aws_session_token=credentials['SessionToken'])
     
     response = rds.describe_db_clusters(DBClusterIdentifier='two-stack-app-db')
     return response["DBClusters"][0]["Endpoint"], response["DBClusters"][0]["DatabaseName"]
@@ -44,10 +62,14 @@ handler = Mangum(app)
 # %%
 def get_database_url():
     # Retrieve secret values from AWS Secrets Manager
-    secret_client = boto3.client("secretsmanager",region_name="eu-west-1")
+    secret_client = boto3.client("secretsmanager",    
+        aws_access_key_id=credentials['AccessKeyId'],
+        aws_secret_access_key=credentials['SecretAccessKey'],
+        aws_session_token=credentials['SessionToken'])
     response = secret_client.get_secret_value(SecretId=SECRET_NAME)
     secret = response["SecretString"]
     secret_dict = json.loads(secret)
+
     # Form the DATABASE_URL string
     username = secret_dict["username"]
     password = secret_dict["password"]
@@ -80,7 +102,7 @@ def create_sample_data():
             
     connection = psycopg2.connect(get_database_url())
     with connection.cursor() as cursor:
-        cursor.execute('''CREATE TABLE IF NOT EXISTS books(book_id varchar(200) NOT NULL,
+        cursor.execute('''CREATE TABLE IF NOT EXISTS books(book_id string NOT NULL,
                                                             genre varchar(100),
                                                             name varchar(1000), 
                                                             price float)''')         
@@ -89,7 +111,7 @@ def create_sample_data():
             cursor.execute(f"""INSERT INTO books(book_id , genre, name, price) 
                                VALUES ({book['book_id']}, {book['genre']}, {book['name']}, {book['price']})""")
 
-create_sample_data()
+
 # %%
 @app.get("/")
 async def root():
